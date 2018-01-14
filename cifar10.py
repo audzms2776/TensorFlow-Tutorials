@@ -118,7 +118,7 @@ def _convert_images(raw):
     """
 
     # Convert the raw images from the data-files to floating-points.
-    raw_float = np.array(raw, dtype=float) / 255.0
+    raw_float = np.array(raw, dtype=np.float32) / 255.0
 
     # Reshape the array to 4-dimensions.
     images = raw_float.reshape([-1, num_channels, img_size, img_size])
@@ -192,7 +192,7 @@ def load_training_data():
     """
 
     # Pre-allocate the arrays for the images and class-numbers for efficiency.
-    images = np.zeros(shape=[_num_images_train, img_size, img_size, num_channels], dtype=float)
+    images = np.zeros(shape=[_num_images_train, img_size, img_size, num_channels], dtype=np.float32)
     cls = np.zeros(shape=[_num_images_train], dtype=int)
 
     # Begin-index for the current batch.

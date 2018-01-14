@@ -11,6 +11,7 @@ tf.logging.set_verbosity(tf.logging.INFO)
 learning_rate = 0.001
 num_steps = 1000
 batch_size = 200
+img_size_cropped = 24
 
 # Network Parameters
 dropout = 0.25  # Dropout, probability to drop a unit
@@ -26,12 +27,16 @@ def cnn_net(x_dict, n_classes, dropout, reuse, is_training):
         x = tf.reshape(x, shape=[-1, img_size, img_size, num_channels])
 
         conv1 = tf.layers.conv2d(x, 20, 5, activation=tf.nn.relu)
-        conv1 = tf.layers.max_pooling2d(conv1, 2, 2)
+        batch_norm1 = tf.layers.batch_normalization(conv1, training=is_training)
+        bn_acti1 = tf.nn.relu(batch_norm1)
+        pool1 = tf.layers.max_pooling2d(bn_acti1, 2, 2)
 
-        conv2 = tf.layers.conv2d(conv1, 30, 3, activation=tf.nn.relu)
-        conv2 = tf.layers.max_pooling2d(conv2, 2, 2)
+        conv2 = tf.layers.conv2d(pool1, 30, 3, activation=tf.nn.relu)
+        batch_norm2 = tf.layers.batch_normalization(conv2, training=is_training)
+        bn_acti2 = tf.nn.relu(batch_norm2)
+        pool2 = tf.layers.max_pooling2d(bn_acti2, 2, 2)
 
-        fc1 = tf.contrib.layers.flatten(conv2)
+        fc1 = tf.contrib.layers.flatten(pool2)
         fc1 = tf.layers.dense(fc1, 1024, activation=tf.nn.relu)
         fc1 = tf.layers.dropout(fc1, rate=dropout, training=is_training)
 
@@ -86,6 +91,7 @@ def estimator_fn(data, epoch=None, shuffle=True):
 # array([6, 9, 9, ..., 9, 1, 1])
 def train_fn(task, model):
     if task == 'train':
+
         input_fn = estimator_fn({'images': images_train, 'labels': cls_train})
         model.train(input_fn, steps=num_steps)
     elif task == 'test':
@@ -111,7 +117,7 @@ def visual_model(model):
 
 
 def main(_):
-    model = tf.estimator.Estimator(model_fn, model_dir='./cifar-model')
+    model = tf.estimator.Estimator(model_fn, model_dir='/tmp/cifar-model3')
 
     tf.train.LoggingTensorHook(tensors={
         'probalities': 'softmax_tensor',
