@@ -91,7 +91,6 @@ def estimator_fn(data, epoch=None, shuffle=True):
 # array([6, 9, 9, ..., 9, 1, 1])
 def train_fn(task, model):
     if task == 'train':
-
         input_fn = estimator_fn({'images': images_train, 'labels': cls_train})
         model.train(input_fn, steps=num_steps)
     elif task == 'test':
